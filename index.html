@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد تعاملی ارتباطات فوق‌امن و ناشناسی سطح بالا (۲۰۲۶)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Vazirmatn Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0284c7;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+    <!-- Chosen Palette: Dark Cyber Slate with Emerald and Amber Accents (#0f172a, #1e293b, #0284c7, #10b981, #f59e0b) -->
+    <!-- Application Structure Plan: این برنامه تعاملی بر پایه ۷ بخش محوری طراحی شده است: ۱. مرکز فرماندهی و ارزیابی تهدید (قابلیت سنجش مدل تهدید کاربر و پیشنهاد معماری بهینه)، ۲. دکترین‌های اطلاعات نظامی و رمزنگاری پساکوانتومی (CNSA 2.0 در برابر رویکرد هیبریدی اروپا)، ۳. ارتباطات کاربر به کاربر P2P (بررسی TFC، SimpleX، Signal SPQR و پیام‌رسان‌های دارک‌نت)، ۴. ارتباط با سایت‌ها و وب Clearnet (OHTTP، ECH، تور Arti و I2P)، ۵. میکس‌نت‌ها و شکست ناظر جهانی (Katzenpost، Nym و PIR)، ۶. پروتکل‌های ضد فیلترینگ (Xray REALITY/XHTTP، AmneziaWG 3.1، MASQUE و Stegozoa)، ۷. امنیت سیستم‌عامل و چک‌لیست OPSEC (Qubes OS، Tails، GrapheneOS و چک‌لیست ۶ مرحله‌ای). این ساختار غیرخطی به کاربر اجازه می‌دهد هم از ابزار تصمیم‌گیری و هم از مقایسه‌ها و نمودارهای پویا برای درک عمیق‌تر استفاده کند. -->
+    <!-- Visualization & Content Choices: 
+         - گزارش -> هدف: مقایسه زمان‌بندی PQC آژانس NSA با اتحادیه اروپا -> ابزار: نمودار میله‌ای افقی Chart.js برای نشان دادن مهلت‌های ۲۰۲۷، ۲۰۳۰ و ۲۰۳۳.
+         - گزارش -> هدف: مقایسه قدرت پیام‌رسان‌ها در برابر حریف دولتی و افشای متادیتا -> ابزار: نمودار راداری Chart.js (تطبیق SimpleX, TFC, Signal, Session, Cwtch).
+         - گزارش -> هدف: بررسی کارایی پروتکل‌های ضد فیلترینگ -> ابزار: نمودار میله‌ای Chart.js برای مقایسه میزان استتار و سربار شبکه.
+         - گزارش -> هدف: انتخاب راهکار امنیتی مناسب کاربر -> ابزار: آزمون ارزیابی مدل تهدید تعاملی با الگوریتم تصمیم‌گیری متغیرهای JS.
+         - عدم استفاده از SVG یا Mermaid JS کاملاً تایید شده است. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🛡️</span>
+                    <div>
+                        <h1 class="text-lg font-bold text-sky-400 leading-tight">سامانه جامع ارتباطات فوق‌امن و معماری ناشناسی</h1>
+                        <p class="text-xs text-slate-400">مرجع تخصصی استانداردهای نظامی، رمزنگاری پساکوانتومی و ضد شناسایی (۲۰۲۶)</p>
+                    </div>
+                </div>
+                <div class="hidden lg:flex items-center space-x-1 space-x-reverse text-sm font-medium">
+                    <button onclick="switchTab('tab-evaluator')" class="nav-btn px-3 py-2 rounded-md transition text-slate-300 hover:text-white hover:bg-slate-800 active-tab" data-tab="tab-evaluator">🎯 ارزیاب تهدید</button>
+                    <button onclick="switchTab('tab-military')" class="nav-btn px-3 py-2 rounded-md transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="tab-military">🏛️ دکترین نظامی و PQC</button>
+                    <button onclick="switchTab('tab-p2p')" class="nav-btn px-3 py-2 rounded-md transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="tab-p2p">👤 ارتباط P2P</button>
+                    <button onclick="switchTab('tab-p2site')" class="nav-btn px-3 py-2 rounded-md transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="tab-p2site">🌐 ارتباط با سایت</button>
+                    <button onclick="switchTab('tab-mixnets')" class="nav-btn px-3 py-2 rounded-md transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="tab-mixnets">🌪️ میکس‌نت‌ها</button>
+                    <button onclick="switchTab('tab-antidpi')" class="nav-btn px-3 py-2 rounded-md transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="tab-antidpi">⚡ ضد فیلترینگ</button>
+                    <button onclick="switchTab('tab-opsec')" class="nav-btn px-3 py-2 rounded-md transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="tab-opsec">💻 سیستم‌عامل و OPSEC</button>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="lg:hidden">
+                    <button onclick="toggleMobileMenu()" class="p-2 text-slate-400 hover:text-white focus:outline-none">
+                        <span class="text-xl">☰</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-slate-900 border-b border-slate-800 px-4 pt-2 pb-4 space-y-1">
+            <button onclick="switchTab('tab-evaluator'); toggleMobileMenu();" class="block w-full text-right px-3 py-2 rounded-md text-slate-300 hover:bg-slate-800">🎯 ارزیاب تهدید</button>
+            <button onclick="switchTab('tab-military'); toggleMobileMenu();" class="block w-full text-right px-3 py-2 rounded-md text-slate-300 hover:bg-slate-800">🏛️ دکترین نظامی و PQC</button>
+            <button onclick="switchTab('tab-p2p'); toggleMobileMenu();" class="block w-full text-right px-3 py-2 rounded-md text-slate-300 hover:bg-slate-800">👤 ارتباط P2P</button>
+            <button onclick="switchTab('tab-p2site'); toggleMobileMenu();" class="block w-full text-right px-3 py-2 rounded-md text-slate-300 hover:bg-slate-800">🌐 ارتباط با سایت</button>
+            <button onclick="switchTab('tab-mixnets'); toggleMobileMenu();" class="block w-full text-right px-3 py-2 rounded-md text-slate-300 hover:bg-slate-800">🌪️ میکس‌نت‌ها</button>
+            <button onclick="switchTab('tab-antidpi'); toggleMobileMenu();" class="block w-full text-right px-3 py-2 rounded-md text-slate-300 hover:bg-slate-800">⚡ ضد فیلترینگ</button>
+            <button onclick="switchTab('tab-opsec'); toggleMobileMenu();" class="block w-full text-right px-3 py-2 rounded-md text-slate-300 hover:bg-slate-800">💻 سیستم‌عامل و OPSEC</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+
+        <!-- TAB 1: THREAT EVALUATOR & DECISION MATRIX -->
+        <section id="tab-evaluator" class="tab-content space-y-8">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-bold text-sky-400 mb-3 flex items-center gap-2">
+                    <span>🎯</span> ارزیاب هوشمند سطح تهدید و معماری پیشنهادی
+                </h2>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    این بخش به شما کمک می‌کند تا بر اساس سناریوی عملیاتی، سطح مهاجم در برابر خود (از سانسور چی دولتی تا سرویس‌های اطلاعاتی متخاصم) و تجهیزات در دسترس، مناسب‌ترین پشته پروتکل‌ها، نرم‌افزارها و سیستم‌عامل امن را استخراج کنید.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">۱. هدف اصلی ارتباط شما چیست؟</label>
+                        <select id="eval-goal" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500">
+                            <option value="p2p">چت و تبادل فایل دو نفره حساس</option>
+                            <option value="whistle">افشای اسناد و گزارش‌دهی ناشناس به سایت</option>
+                            <option value="bypassing">عبور از فیلترینگ و بازرسی عمیق بسته (DPI)</option>
+                            <option value="daily">پیام‌رسانی روزمره امن روی گوشی موبایل</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">۲. سطح قدرتمندی ناظر/مهاجم چیست؟</label>
+                        <select id="eval-threat" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500">
+                            <option value="high">آژانس اطلاعاتی دولتی + اکسپلویت نقطه پایانی</option>
+                            <option value="global">ناظر جهانی غیرفعال (GPA) + تحلیل متادیتا</option>
+                            <option value="dpi">فایروال ملی با DPI و کاوشگر فعال (Active Probing)</option>
+                            <option value="local">شنود محلی ISP یا هکرهای عمومی</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">۳. سخت‌افزار در دسترس شما چیست؟</label>
+                        <select id="eval-hw" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500">
+                            <option value="multi-pc">چند کامپیوتر مجزا + دیود سخت‌افزاری نوری</option>
+                            <option value="pc-qubes">لپ‌تاپ/کامپیوتر قدرتمند با Qubes OS یا Tails</option>
+                            <option value="mobile-graphene">گوشی هوشمند با GrapheneOS / Android</option>
+                            <option value="standard-pc">کامپیوتر یا سیستم‌عامل معمولی</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="calculateRecommendation()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-8 py-3 rounded-xl transition shadow-lg shadow-sky-950 flex items-center justify-center gap-2 mx-auto">
+                        <span>⚡</span> محاسبه معماری بهینه امنیتی
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recommendation Result Card -->
+            <div id="recommendation-result" class="bg-gradient-to-br from-slate-900 to-slate-800 border border-sky-500/30 rounded-2xl p-6 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+                    <h3 class="text-xl font-bold text-emerald-400 flex items-center gap-2">
+                        <span>🚀</span> معماری پیشنهادی متناسب با مدل تهدید شما
+                    </h3>
+                    <span id="rec-badge" class="bg-emerald-500/20 text-emerald-400 text-xs px-3 py-1 rounded-full font-mono border border-emerald-500/40">سطح امنیت: فوق‌العاده بالا</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="rec-cards-container">
+                    <!-- Dynamic Recommendation Cards will be injected here via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: MILITARY DOCTRINES & PQC -->
+        <section id="tab-military" class="tab-content hidden space-y-8">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <h2 class="text-2xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                    <span>🏛️</span> دکترین‌های اطلاعات نظامی و رمزنگاری پساکوانتومی (PQC)
+                </h2>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    بررسی اسناد رسمی آژانس امنیت ملی آمریکا (NSA CSfC)، DARPA، ANSSI فرانسه، BSI آلمان و NCSC بریتانیا نشان می‌دهد که نهادهای نظامی برای حفاظت از داده‌های محرمانه هرگز به یک محصول تک متکی نیستند، بلکه امنیت را از طریق **معماری دو لایه مستقل** و **رمزنگاری هیبریدی پساکوانتومی** مهندسی می‌کنند.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Chart 1: PQC Timelines -->
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-200 mb-2 flex items-center gap-2">
+                                <span>📊</span> تقویم الزام کوچ به PQC (NSA CNSA 2.0 در برابر اتحادیه اروپا)
+                            </h3>
+                            <p class="text-xs text-slate-400 mb-4">مهلت‌های زمانی جایگزینی منحنی‌های بیضوی (ECC) و RSA با الگوریتم‌های ML-KEM و ML-DSA در تجهیزات نظامی و ابری.</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pqcChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Key Military Concepts -->
+                    <div class="space-y-4">
+                        <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-4">
+                            <h4 class="font-bold text-amber-400 mb-2 flex items-center gap-2">
+                                <span>🔑</span> معماری دو لایه مستقل CSfC (NSA)
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                در استاندارد CSfC برای انتقال داده‌های فوق‌محرمانه از بسترهای غیر قابل اعتماد، دو تونل مجزا (IPsec در برابر IPsec/TLS) روی دو CA کاملاً مستقل اجرا می‌شوند. اگر یک تونل هک شود، لایه دوم محافظت را ادامه می‌دهد.
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-4">
+                            <h4 class="font-bold text-emerald-400 mb-2 flex items-center gap-2">
+                                <span>🛡️</span> دکترین هیبریدی اروپایی (ANSSI / BSI)
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                برخلاف NSA که الزام بر PQC محض دارد، نهادهای اروپایی ترکیب الگوریتم کلاسیک اثبات‌شده (مانند X25519) با پساکوانتومی (ML-KEM-768) را الزامی می‌دانند تا در صورت بروز نقص ریاضی در شبکه، امنیت افشا نشود.
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-4">
+                            <h4 class="font-bold text-sky-400 mb-2 flex items-center gap-2">
+                                <span>🛰️</span> پروژه DARPA RACE & ROCKY
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                پروژه DARPA برای ارتباطات نظامی ناشناس، داده‌ها را حتی هنگام محاسبات درون حافظه نودها رمزنگاری می‌کند و پروتکل ROCKY الگوهای داده را درون ترافیک عادی TLS پنهان می‌سازد.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: P2P COMMUNICATIONS -->
+        <section id="tab-p2p" class="tab-content hidden space-y-8">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <h2 class="text-2xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                    <span>👤</span> ایمن‌ترین معماری‌های ارتباط کاربر به کاربر (Person-to-Person)
+                </h2>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    حفاظت از محتوای پیام (E2EE) تنها نصف مسیر امنیت است. پنهان‌سازی فراداده (چه کسی با چه کسی صحبت می‌کند) و مقاوم‌سازی نقطه پایانی، مرز اصلی تفکیک پیام‌رسان‌های معمولی از سیستم‌های اطلاعاتی است.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Chart 2: Messenger Radar -->
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 lg:col-span-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-200 mb-2">📊 مقایسه ۵ بعدی پیام‌رسان‌ها</h3>
+                            <p class="text-xs text-slate-400 mb-3">ارزیابی حذف فراداده، مقاومت نقطه پایانی، PQC، عدم تکیه به شماره تلفن و ایزولاسیون.</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="messengerRadarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- TFC Special Section -->
+                    <div class="bg-slate-900 border border-amber-500/30 rounded-xl p-5 lg:col-span-2 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-xl font-bold text-amber-400 flex items-center gap-2">
+                                <span>🔌</span> معماری Tinfoil Chat (TFC): دیود سخت‌افزاری نوری
+                            </h3>
+                            <span class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded">مرز نهایی امنیت</span>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            در مدل تهدید سطح فوق‌محرمانه، کامپیوتر متصل به اینترنت قابل اعتماد نیست. TFC با تقسیم سیستم به سه دستگاه مجزا و اتصال آن‌ها از طریق **اپتوکوپلرهای یک‌طرفه (Data Diodes)**، سرقت کلید یا شنود پیام‌ها را حتی در صورت نفوذ بدافزار روز صفر به سیستم متصل به اینترنت، بر اساس قوانین فیزیک ناممکن می‌سازد.
+                        </p>
+                        
+                        <!-- Visual Hardware Diode Diagram -->
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 text-xs font-mono grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                            <div class="bg-slate-900 p-3 rounded border border-slate-700">
+                                <div class="font-bold text-sky-400 mb-1">کامپیوتر مبدا (آفلاین)</div>
+                                <div class="text-slate-400">تایپ و رمزنگاری داده</div>
+                            </div>
+                            <div class="flex flex-col items-center justify-center text-emerald-400">
+                                <span>➡️ دیود نوری (اپتوکوپلر) ➡️</span>
+                                <span class="text-[10px] text-slate-500">(انتقال فقط ۱ طرفه نور)</span>
+                            </div>
+                            <div class="bg-slate-900 p-3 rounded border border-slate-700">
+                                <div class="font-bold text-red-400 mb-1">کامپیوتر شبکه (آنلاین)</div>
+                                <div class="text-slate-400">ارسال روی Tor v3 Onion</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Messenger Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4">
+                        <h4 class="font-bold text-emerald-400 text-base mb-2"> SimpleX Chat: حذف کامل شناسه کاربری</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            فاقد هرگونه User ID یا کلید ثابت در شبکه. استفاده از صف‌های یک‌طرفه مجزا، پدینگ ثابت ۱۶ کیلوبایتی، رچت پساکوانتومی `sntrup761` و مسیریابی XFTP.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4">
+                        <h4 class="font-bold text-sky-400 text-base mb-2">📱 Signal SPQR & Molly-FOSS</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            معماری Triple Ratchet با پروتکل SPQR برای فشرده‌سازی ML-KEM. کلاینت Molly-FOSS رمزشده روی GrapheneOS بالاترین امنیت موبایل را دارد.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4">
+                        <h4 class="font-bold text-purple-400 text-base mb-2">🧅 Cwtch & Ricochet Refresh</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            ارتباط مستقیم Onion-to-Onion بر بستر Tor v3 بدون سرور واسط. Ricochet به زبان ایمن Rust بازنویسی شده است.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4">
+                        <h4 class="font-bold text-amber-400 text-base mb-2">📻 Reticulum (RNS) & Veilid</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            شبکه مستقل از IP برای رادیوهای LoRa و پکت رادیو. چارچوب Veilid از cDc چت همتابه‌همتا را بدون سرور مرکزی میسر می‌کند.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: PERSON TO SITE -->
+        <section id="tab-p2site" class="tab-content hidden space-y-8">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <h2 class="text-2xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                    <span>🌐</span> ارتباط ایمن با سایت‌ها، افشاگری و Clearnet
+                </h2>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    هنگام ارتباط با یک سایت، قطع ارتباط بین آدرس IP کاربر و محتوای درخواست الزامی است. این امر در دارک‌نت با سرویس‌های پیازی و در وب عادی با زنجیره OHTTP و ECH حاصل می‌شود.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- SecureDrop 2026 & OnionShare -->
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 space-y-3">
+                        <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                            <span>📩</span> افشاگری اسناد: SecureDrop ۲۰۲۶ و OnionShare
+                        </h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            پروتکل جدید **SecureDrop (۲۰۲۶)** امکان استقرار ابری امن با تضمین‌های پساکوانتومی هیبریدی، انکارپذیری پیام (Deniability) و کلاینت بدون حالت (Stateless) در مرورگر را آورده است. همچنین **OnionShare** امکان تبدیل سیستم محلی به صندوق دریافت پیازی Tor v3 بدون ثبت لاگ را فراهم می‌کند.
+                        </p>
+                    </div>
+
+                    <!-- Tor 2026 Ecosystem -->
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 space-y-3">
+                        <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                            <span>🧅</span> ارتقای شبکه تور ۲۰۲۶: Arti، Vanguards و Equi-X
+                        </h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            استفاده از **Arti** (بازنویسی Tor با Rust) آسیب‌پذیری‌های حافظه را صفر می‌کند. ماژول **Vanguards** جلوی حملات کشف نود نگهبان (Guard Discovery) را می‌گیرد و **Equi-X PoW** جلوی حملات DoS به سرویس‌های پیازی را سد می‌کند.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Clearnet Protection Stack -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-amber-400 mb-4">🔗 زنجیره استانداردهای IETF برای ارتباط ناشناس با وب عادی (Clearnet)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800">
+                            <div class="font-bold text-sky-400 mb-1">OHTTP (RFC 9458)</div>
+                            <div class="text-slate-300">تفکیک IP از درخواست با رمزنگاری HPKE و رله واسط.</div>
+                        </div>
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800">
+                            <div class="font-bold text-emerald-400 mb-1">μODoH (RFC 9230)</div>
+                            <div class="text-slate-300">استعلام DNS چندگامی توزیع‌شده برای پنهان‌سازی دامنه.</div>
+                        </div>
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800">
+                            <div class="font-bold text-purple-400 mb-1">TLS 1.3 ECH (RFC 9849)</div>
+                            <div class="text-slate-300">رمزنگاری نام دامنه اصلی (SNI) در پیام ClientHello.</div>
+                        </div>
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800">
+                            <div class="font-bold text-amber-400 mb-1">Privacy Pass (RFC 9576)</div>
+                            <div class="text-slate-300">احراز هویت ناشناس با توکن‌های امضای کور RSA/VOPRF.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: MIXNETS & GPA -->
+        <section id="tab-mixnets" class="tab-content hidden space-y-8">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <h2 class="text-2xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                    <span>🌪️</span> میکس‌نت‌ها و شکست «ناظر جهانی غیرفعال» (GPA)
+                </h2>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    شبکه‌های مسیریابی پیازی کم‌تاخیر مانند Tor در برابر ناظر جهانی که کل شبکه را رصد می‌کند، به دلیل حفظ زمان‌بندی بسته‌ها در خطر همبستگی ترافیک قرار دارند. میکس‌نت‌ها با ایجاد **تاخیر تصادفی** و **ترافیک پوششی** این تهدید را خنثی می‌کنند.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 space-y-3">
+                        <h3 class="text-lg font-bold text-emerald-400"> Katze post: میکس‌نت پساکوانتومی</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            بهره‌گیری از فرمت بسته KEM Sphinx، رمزهای عریض Lioness، دست‌دهی PQ Noise با الگوریتم X-Wing و امضاهای هیبریدی SPHINCS+ برای متوقف ساختن کامل تحلیل ترافیک زمان‌بندی و کوانتومی.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 space-y-3">
+                        <h3 class="text-lg font-bold text-sky-400">🔮 Nym Mixnet & zk-nyms</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            میکس‌نت ۵ لایه‌ای با پنهان‌سازی نویز پواسون Loopix. استفاده از اعتبارنامه‌های دانش صفر Coconut (zk-nyms) برای پرداخت و احراز هویت بدون امکان پیوند دادن کاربران.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Academic PIR & ZK table -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+                    <h3 class="text-lg font-bold text-amber-400 mb-3">🔬 سیستم‌های پژوهشی PIR و دانش صفر در گیت‌هاب</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs text-slate-300">
+                            <thead class="bg-slate-950 text-slate-400 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">پروژه / سیستم</th>
+                                    <th class="p-3">مکانیسم اصلی</th>
+                                    <th class="p-3">تضمین امنیتی و عملکرد</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800">
+                                <tr>
+                                    <td class="p-3 font-mono font-bold text-sky-400">Vuvuzela / Alpenhorn</td>
+                                    <td class="p-3">حریم خصوصی تفاضلی + تزریق نویز</td>
+                                    <td class="p-3">حفظ متادیتا حتی با ۱ سرور سالم از بین چند سرور.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono font-bold text-emerald-400">Riposte (Reverse PIR)</td>
+                                    <td class="p-3">توابع نقطه‌ای توزیع‌شده (DPFs)</td>
+                                    <td class="p-3">ایجاد مجموعه ناشناسی ۲.۸ میلیون کاربری.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono font-bold text-purple-400">Addra / FastPIR</td>
+                                    <td class="p-3">پردازش SIMD روی رمزنگاری BFV</td>
+                                    <td class="p-3">تماس صوتی بدون متادیتا برای ۳۲,۰۰۰ کاربر با تاخیر ۷۲۶ms.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono font-bold text-amber-400">Waku RLN (zk-SNARKs)</td>
+                                    <td class="p-3">Groth16 ZK + Rate Limiting</td>
+                                    <td class="p-3">مهار اسپم در شبکه P2P بدون افشای هویت فرستنده.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: ANTI-DPI & COVERT CHANNELS -->
+        <section id="tab-antidpi" class="tab-content hidden space-y-8">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <h2 class="text-2xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                    <span>⚡</span> پروتکل‌های ضد فیلترینگ و کانال‌های پنهان (Covert Channels)
+                </h2>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    در محیط‌های تحت نظارت سیستم‌های بازرسی عمیق بسته (DPI)، استفاده از VPN یا Tor معمولی بلافاصله مسدود می‌شود. پروتکل‌های استتار الگوی ترافیک را کاملاً هم‌شکل ترافیک وب اصیل می‌کنند.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Chart 3: Anti-DPI Comparison -->
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-200 mb-2">📊 مقایسه قدرت استتار در برابر کارایی</h3>
+                            <p class="text-xs text-slate-400 mb-3">ارزیابی میزان مقاومت در برابر DPI دولتی در برابر سرعت و پهنای باند.</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="antiDpiChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Anti-DPI Repository Breakdowns -->
+                    <div class="space-y-4">
+                        <div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
+                            <h4 class="font-bold text-emerald-400 mb-1">Xray VLESS-REALITY & XHTTP</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                **REALITY** دست‌دهی TLS 1.3 یک سایت واقعی را قرض می‌گیرد و با uTLS اثرانگشت مرورگر را تقلید می‌کند. **XHTTP** با تفکیک آپلود و دانلود روی مسیرهای نامتقارن، حتی سخت‌ترین فیلترینگ دیتاسنتری را دور می‌زند.
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
+                            <h4 class="font-bold text-sky-400 mb-1">AmneziaWG 3.1 & MASQUE (HTTP/3)</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                **AmneziaWG 3.1** با کلید رمزنگاری هدر (`S1-S4`) و بسته‌های امضای سفارشی WireGuard را پنهان می‌کند. **MASQUE (RFC 9298)** دیتاگرم‌های UDP/IP را درون اتصال استاندارد HTTP/3 مالتی‌پلکس می‌نماید.
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
+                            <h4 class="font-bold text-amber-400 mb-1">Stegozoa: استگانوگرافی ویدیویی WebRTC</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                جای‌گذاری داده‌های مخفی درون ضرایب ضریب تبدیل کسینوسی (QDCT) کدک ویدیویی VP8 در تماس ویدیویی WebRTC؛ مقاوم در برابر آنالیز ترافیک هوش مصنوعی و DPI.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 7: ENDPOINT OS & OPSEC -->
+        <section id="tab-opsec" class="tab-content hidden space-y-8">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <h2 class="text-2xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                    <span>💻</span> سیستم‌عامل‌های سخت‌سازی‌شده و چک‌لیست ۶ مرحله‌ای OPSEC
+                </h2>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    بهترین پروتکل‌های شبکه در صورت ناامن بودن سیستم‌عامل نقطه پایانی بی‌اثر خواهند شد. استفاده از سیستم‌عامل‌های ایزوله و رعایت اصول امنیت عملیاتی الزامی است.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 border-t-4 border-t-sky-500">
+                        <h3 class="font-bold text-sky-400 text-lg mb-2">Qubes OS + Whonix</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            ایزولاسیون کامل سخت‌افزاری با Xen. تفکیک کارت شبکه از محیط برنامه‌ها و قفل کردن ترافیک درون Whonix Gateway؛ غیرممکن ساختن افشای IP واقعی با اکسپلویت.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 border-t-4 border-t-purple-500">
+                        <h3 class="font-bold text-purple-400 text-lg mb-2">Tails OS (اجرا روی RAM)</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            سیستم‌عامل بدون ردپا روی حافظه RAM. عدم ثبت هیچ داده‌ای روی هارد دیسک و پاکسازی خودکار RAM در هنگام خاموش شدن.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 border-t-4 border-t-emerald-500">
+                        <h3 class="font-bold text-emerald-400 text-lg mb-2">GrapheneOS (موبایل)</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            برچسب‌گذاری سخت‌افزاری حافظه MTE، رمز اضطراری **Duress PIN** (امحای آنی کلیدها و eSIM)، قطع سخت‌افزاری USB و ری‌بوت خودکار.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 6-Step OPSEC Checklist -->
+                <div class="bg-slate-900 border border-amber-500/30 rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-amber-400 mb-4 flex items-center gap-2">
+                        <span>📋</span> چک‌لیست عملیاتی ۶ مرحله‌ای گریز از شناسایی (OPSEC Checklist)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex gap-3">
+                            <span class="text-lg font-bold text-amber-400">۱</span>
+                            <div>
+                                <div class="font-bold text-slate-200 mb-1">جداسازی کامل هویت‌ها</div>
+                                <div class="text-slate-400">صفر درصد همپوشانی میان دستگاه، شبکه و حساب‌های واقعی با هویت عملیاتی.</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex gap-3">
+                            <span class="text-lg font-bold text-amber-400">۲</span>
+                            <div>
+                                <div class="font-bold text-slate-200 mb-1">حذف سیم‌کارت و پرداخت با Monero</div>
+                                <div class="text-slate-400">عدم استفاده از شماره واقعی؛ خرید زیرساخت صرفاً با Monero (XMR) روی Tor.</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex gap-3">
+                            <span class="text-lg font-bold text-amber-400">۳</span>
+                            <div>
+                                <div class="font-bold text-slate-200 mb-1">پاکسازی کامل متادیتای فایل‌ها</div>
+                                <div class="text-slate-400">حذف EXIF، آنالیز نویز سنسور دوربین و الگوهای چاپگر پیش از ارسال اسناد.</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex gap-3">
+                            <span class="text-lg font-bold text-amber-400">۴</span>
+                            <div>
+                                <div class="font-bold text-slate-200 mb-1">خنثی‌سازی سبک نگارش و کی‌لاگر</div>
+                                <div class="text-slate-400">استانداردسازی متن برای شکست Anti-Stylometry و استفاده از ابزار kloak در Whonix.</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex gap-3">
+                            <span class="text-lg font-bold text-amber-400">۵</span>
+                            <div>
+                                <div class="font-bold text-slate-200 mb-1">شبکه دو لایه (Anti-DPI + Tor/I2P)</div>
+                                <div class="text-slate-400">عبور از فایروال با VLESS-REALITY/AmneziaWG و هدایت لایه درونی به Tor Arti/Vanguards.</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex gap-3">
+                            <span class="text-lg font-bold text-amber-400">۶</span>
+                            <div>
+                                <div class="font-bold text-slate-200 mb-1">انتخاب ابزار متناسب با مدل تهدید</div>
+                                <div class="text-slate-400">استفاده از TFC برای تهدید دولتی، SimpleX/Molly برای چت و SecureDrop برای افشاگری.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            توسعه‌یافته بر پایه دکترین‌های امنیتی NSA CNSA 2.0، ANSSI، BSI و ریپازیتوری‌های معتبر گیت‌هاب (۲۰۲۶) | فاقد گرافیک‌های SVG و Mermaid
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Tab Switcher Logic
+        function switchTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(el => el.classList.add('hidden'));
+
+            const selectedTab = document.getElementById(tabId);
+            if(selectedTab) {
+                selectedTab.classList.remove('hidden');
+            }
+
+            // Update Nav Buttons
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                if(btn.getAttribute('data-tab') === tabId) {
+                    btn.classList.add('text-white', 'bg-slate-800', 'border-b-2', 'border-sky-500');
+                    btn.classList.remove('text-slate-300');
+                } else {
+                    btn.classList.remove('text-white', 'bg-slate-800', 'border-b-2', 'border-sky-500');
+                    btn.classList.add('text-slate-300');
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Recommendation Engine Logic
+        function calculateRecommendation() {
+            const goal = document.getElementById('eval-goal').value;
+            const threat = document.getElementById('eval-threat').value;
+            const hw = document.getElementById('eval-hw').value;
+
+            const container = document.getElementById('rec-cards-container');
+            container.innerHTML = '';
+
+            let appRec = { title: "", desc: "", icon: "💬" };
+            let osRec = { title: "", desc: "", icon: "💻" };
+            let netRec = { title: "", desc: "", icon: "🌐" };
+            let pqcRec = { title: "", desc: "", icon: "🔑" };
+
+            if(goal === 'p2p') {
+                if(threat === 'high' || hw === 'multi-pc') {
+                    appRec = { title: "Tinfoil Chat (TFC)", desc: "استفاده از دیود نوری یک‌طرفه سخت‌افزاری روی ۳ کامپیوتر مجزا.", icon: "🔌" };
+                    osRec = { title: "Qubes OS + Whonix", desc: "ایزولاسیون سخت‌افزاری کامل با Xen و Split-GPG.", icon: "🖥️" };
+                } else {
+                    appRec = { title: "SimpleX Chat", desc: "حذف کامل شناسه کاربری، صف‌های یک‌طرفه و پدینگ ۱۶KB.", icon: "💬" };
+                    osRec = { title: "Tails OS / GrapheneOS", desc: "اجرای کاملاً روی RAM در دسکتاپ یا GrapheneOS با MTE در موبایل.", icon: "📱" };
+                }
+            } else if(goal === 'whistle') {
+                appRec = { title: "SecureDrop ۲۰۲۶ / OnionShare", desc: "ارسال اسناد پساکوانتومی بدون ثبت لاگ و مرورگر Stateless.", icon: "📩" };
+                osRec = { title: "Tails OS (بدون ثبت داده)", desc: "بوت از روی فلش USB و پاکسازی کامل حافظه RAM.", icon: "💾" };
+            } else if(goal === 'bypassing') {
+                appRec = { title: "Xray VLESS-REALITY + XHTTP", desc: "استتار TLS 1.3 اصیل + تفکیک نامتقارن آپلود/دانلود.", icon: "⚡" };
+                osRec = { title: "AmneziaWG 3.1 / MASQUE", desc: "پروتکل WireGuard مبهم‌شده یا HTTP/3 CONNECT-UDP.", icon: "🛡️" };
+            } else {
+                appRec = { title: "Molly-FOSS (Signal Hardened)", desc: "پروتکل Triple Ratchet / SPQR با رمزشو پایگاه داده.", icon: "📱" };
+                osRec = { title: "GrapheneOS + Duress PIN", desc: "سخت‌سازی کامل اندروید با کد تخریب اضطراری.", icon: "🔒" };
+            }
+
+            netRec = { title: "Tor v3 Arti + Vanguards", desc: "مسیریابی پیازی Rust با سپر محافظت از نود نگهبان.", icon: "🧅" };
+            pqcRec = { title: "X25519MLKEM768 / sntrup761", desc: "تبادل کلید هیبریدی کلاسیک + پساکوانتومی شبکه.", icon: "🔐" };
+
+            const cards = [appRec, osRec, netRec, pqcRec];
+            cards.forEach(c => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2';
+                cardEl.innerHTML = `
+                    <div class="flex items-center gap-2 text-sky-400 font-bold text-sm">
+                        <span>${c.icon}</span>
+                        <span>${c.title}</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">${c.desc}</p>
+                `;
+                container.appendChild(cardEl);
+            });
+        }
+
+        // Initialize Chart.js Charts on Window Load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Chart 1: PQC Timeline Chart
+            const ctx1 = document.getElementById('pqcChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['تجهیزات شبکه (روتر/VPN)', 'امضای فریم‌ور و کد', 'سیستم‌های محرمانه اصلی', 'لغو کامل ECC/RSA'],
+                    datasets: [
+                        {
+                            label: 'NSA CNSA 2.0 (PQC محض)',
+                            data: [2030, 2030, 2027, 2033],
+                            backgroundColor: 'rgba(2, 132, 199, 0.7)',
+                            borderColor: '#0284c7',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'رویکرد هیبریدی اروپا (ANSSI/BSI)',
+                            data: [2026, 2026, 2025, 2030],
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: '#10b981',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1', font: { family: 'Vazirmatn' } } }
+                    },
+                    scales: {
+                        x: {
+                            min: 2024,
+                            max: 2035,
+                            ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } },
+                            grid: { color: '#334155' }
+                        },
+                        y: {
+                            ticks: { color: '#cbd5e1', font: { family: 'Vazirmatn', size: 10 } },
+                            grid: { color: '#1e293b' }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Messenger Radar Chart
+            const ctx2 = document.getElementById('messengerRadarChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'radar',
+                data: {
+                    labels: ['حذف فراداده', 'مقاومت نقطه پایانی', 'رمز پساکوانتومی', 'عدم نیاز به شماره', 'ایزولاسیون سخت‌افزار'],
+                    datasets: [
+                        {
+                            label: 'Tinfoil Chat (TFC)',
+                            data: [100, 100, 85, 100, 100],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        },
+                        {
+                            label: 'SimpleX Chat',
+                            data: [95, 80, 95, 100, 60],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        },
+                        {
+                            label: 'Signal (Molly)',
+                            data: [60, 85, 90, 40, 50],
+                            borderColor: '#0284c7',
+                            backgroundColor: 'rgba(2, 132, 199, 0.2)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#334155' },
+                            grid: { color: '#1e293b' },
+                            pointLabels: { color: '#cbd5e1', font: { family: 'Vazirmatn', size: 10 } },
+                            ticks: { display: false, backdropColor: 'transparent' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1', font: { family: 'Vazirmatn', size: 11 } } }
+                    }
+                }
+            });
+
+            // Chart 3: Anti-DPI Chart
+            const ctx3 = document.getElementById('antiDpiChart').getContext('2d');
+            new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: ['VLESS-REALITY', 'XHTTP نامتقارن', 'AmneziaWG 3.1', 'MASQUE HTTP/3', 'Stegozoa VP8'],
+                    datasets: [
+                        {
+                            label: 'مقاومت در برابر DPI (از ۱۰۰)',
+                            data: [95, 98, 88, 90, 100],
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        },
+                        {
+                            label: 'سرعت و پهنای باند (از ۱۰۰)',
+                            data: [92, 85, 96, 94, 45],
+                            backgroundColor: 'rgba(2, 132, 199, 0.8)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1', font: { family: 'Vazirmatn' } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#cbd5e1', font: { family: 'Vazirmatn', size: 10 } }, grid: { color: '#1e293b' } },
+                        y: { max: 100, ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+                    }
+                }
+            });
+
+            // Trigger initial recommendation calculate
+            calculateRecommendation();
+        });
+    </script>
+</body>
+</html>
